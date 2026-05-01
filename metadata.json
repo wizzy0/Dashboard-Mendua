@@ -1,0 +1,6 @@
+{
+  "name": "Kedai Mendua POS & Inventory",
+  "description": "A minimalist and integrated Point of Sale and Inventory management system for Kedai Mendua, featuring a terracotta-themed UI and real-time low-stock alerts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

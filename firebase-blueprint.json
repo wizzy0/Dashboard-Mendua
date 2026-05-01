@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Inventory items",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "stock": { "type": "number" },
+        "sku": { "type": "string" },
+        "lowStockThreshold": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "ingredients": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "category", "price", "stock"]
+    },
+    "RawMaterial": {
+      "title": "Raw Material",
+      "description": "Base ingredients inventory",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "lowStockThreshold": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "stock", "unit"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Sales records",
+      "type": "object",
+      "properties": {
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "subtotal": { "type": "number" },
+        "tax": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["items", "total", "createdAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product categories",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" }
+      },
+      "required": ["name"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Application users",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "displayName": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Inventory items collection"
+    },
+    "rawMaterials": {
+      "schema": "RawMaterial",
+      "description": "Raw materials inventory collection"
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Sales records collection"
+    },
+    "categories": {
+      "schema": "Category",
+      "description": "Product categories collection"
+    },
+    "users": {
+      "schema": "User",
+      "description": "User profiles and roles"
+    }
+  }
+}

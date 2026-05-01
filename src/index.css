@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terracotta-50: #fef4f2;
+  --color-terracotta-100: #fde8e4;
+  --color-terracotta-200: #fbd1c9;
+  --color-terracotta-300: #f8ae9f;
+  --color-terracotta-400: #f27d66;
+  --color-terracotta-500: #e2725b;
+  --color-terracotta-600: #cc543d;
+  --color-terracotta-700: #ab4430;
+  --color-terracotta-800: #8d3a2b;
+  --color-terracotta-900: #763428;
+  --color-terracotta-950: #401811;
+
+  --color-earth-50: #f9f7f4;
+  --color-earth-100: #f1ede6;
+  --color-earth-500: #a0522d;
+}
+
+@layer base {
+  body {
+    @apply bg-earth-50 text-terracotta-950 antialiased;
+  }
+}
