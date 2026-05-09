@@ -61,32 +61,61 @@ export default function Layout({ children, activeTab, setActiveTab, notification
   const displayUser = user || { displayName: 'Admin Mendua', email: 'admin@mendua.com', photoURL: '' };
   const notificationsCount = notifications.length;
 
-  /* Temporarily hide login block to allow preview
   if (!user) {
     return (
-      <div className="min-h-screen bg-earth-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-earth-50 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-terracotta-200/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-earth-200/50 rounded-full blur-3xl" />
+        
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white p-12 rounded-3xl shadow-xl max-w-md w-full text-center border border-terracotta-100"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+          className="bg-white/80 backdrop-blur-xl p-10 md:p-14 rounded-[2.5rem] shadow-2xl max-w-md w-full text-center border border-white/50 relative z-10"
         >
-          <div className="w-20 h-20 bg-terracotta-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg rotate-3">
-            <ShoppingCart className="text-white w-10 h-10" />
-          </div>
-          <h1 className="text-3xl font-bold text-terracotta-900 mb-2">Kedai Mendua</h1>
-          <p className="text-terracotta-700/70 mb-8">Sistem Informasi Kasir & Inventory Terintegrasi</p>
-          <button
-            onClick={signIn}
-            className="w-full bg-terracotta-500 hover:bg-terracotta-600 text-white font-semibold py-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3"
+          <motion.div 
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", damping: 15, stiffness: 100, delay: 0.2 }}
+            className="w-24 h-24 bg-gradient-to-br from-terracotta-400 to-terracotta-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-terracotta-500/20"
           >
-            <UserIcon size={20} />
-            Masuk dengan Google
-          </button>
+            <ShoppingCart className="text-white w-12 h-12" strokeWidth={1.5} />
+          </motion.div>
+          
+          <motion.div
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.4 }}
+          >
+            <h1 className="text-4xl font-extrabold text-terracotta-900 mb-3 tracking-tight">Kedai Mendua</h1>
+            <p className="text-terracotta-600/80 mb-10 text-lg font-medium">Sistem Kasir & Inventory Terpadu</p>
+          </motion.div>
+
+          <motion.div
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.5 }}
+          >
+            <button
+              onClick={signIn}
+              className="group relative w-full bg-white hover:bg-terracotta-50 text-terracotta-900 border border-terracotta-200 font-semibold py-4 rounded-2xl transition-all duration-300 shadow-sm hover:shadow-md flex items-center justify-center gap-3 overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-terracotta-500 text-white flex items-center justify-center gap-3 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out">
+                <UserIcon size={22} />
+                <span className="font-semibold">Masuk dengan Google</span>
+              </div>
+              <div className=" flex items-center justify-center gap-3 w-full group-hover:opacity-0 transition-opacity duration-300">
+                <UserIcon size={22} className="text-terracotta-500" />
+                <span>Masuk Sekarang</span>
+              </div>
+            </button>
+            <p className="mt-6 text-sm text-terracotta-500/80">Silakan login untuk mengakses sistem</p>
+          </motion.div>
         </motion.div>
       </div>
     );
   }
-  */
 
   return (
     <div className="min-h-screen bg-earth-50 flex overflow-hidden">
