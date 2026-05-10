@@ -241,10 +241,18 @@ export default function HistoryView() {
                     <span>Subtotal</span>
                     <span>{formatCurrency(selectedOrder.subtotal)}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-terracotta-600">
-                    <span>Pajak (10%)</span>
-                    <span>{formatCurrency(selectedOrder.tax)}</span>
-                  </div>
+                  {selectedOrder.discount && selectedOrder.discount > 0 ? (
+                    <div className="flex justify-between text-sm text-terracotta-600">
+                      <span>Diskon</span>
+                      <span className="text-red-500">-{formatCurrency(selectedOrder.discount)}</span>
+                    </div>
+                  ) : null}
+                  {selectedOrder.tax ? (
+                    <div className="flex justify-between text-sm text-terracotta-600">
+                      <span>Pajak</span>
+                      <span>{formatCurrency(selectedOrder.tax)}</span>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between text-lg font-black text-terracotta-900 pt-3 mt-1 border-t border-terracotta-200">
                     <span>Total Keseluruhan</span>
                     <span>{formatCurrency(selectedOrder.total)}</span>

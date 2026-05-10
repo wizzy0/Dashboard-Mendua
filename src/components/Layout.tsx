@@ -11,9 +11,10 @@ interface LayoutProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   notifications: Notification[];
+  onDismissNotification?: (id: string) => void;
 }
 
-export default function Layout({ children, activeTab, setActiveTab, notifications }: LayoutProps) {
+export default function Layout({ children, activeTab, setActiveTab, notifications, onDismissNotification }: LayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -268,17 +269,25 @@ export default function Layout({ children, activeTab, setActiveTab, notification
                         {notificationsCount > 0 ? (
                           <div className="divide-y divide-terracotta-50">
                             {notifications.map((notif) => (
-                              <div key={notif.id} className="p-4 hover:bg-terracotta-50 transition-colors flex gap-3">
+                              <div key={notif.id} className="relative p-4 hover:bg-terracotta-50 transition-colors flex gap-3 group">
                                 <div className={cn(
                                   "shrink-0 w-10 h-10 rounded-full flex items-center justify-center",
                                   notif.type === 'error' ? "bg-red-100 text-red-600" : "bg-orange-100 text-orange-600"
                                 )}>
                                   <AlertTriangle size={20} />
                                 </div>
-                                <div>
+                                <div className="pr-6">
                                   <h4 className="text-sm font-semibold text-terracotta-900">{notif.title}</h4>
                                   <p className="text-sm text-terracotta-600 mt-0.5">{notif.message}</p>
                                 </div>
+                                {onDismissNotification && (
+                                  <button
+                                    onClick={() => onDismissNotification(notif.id)}
+                                    className="absolute top-4 right-4 text-terracotta-300 hover:text-terracotta-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                )}
                               </div>
                             ))}
                           </div>

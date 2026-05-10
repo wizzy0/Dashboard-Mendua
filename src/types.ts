@@ -35,7 +35,8 @@ export interface Order {
   id: string;
   items: CartItem[];
   subtotal: number;
-  tax: number;
+  tax?: number;
+  discount?: number;
   total: number;
   paymentMethod: string;
   customerName?: string;

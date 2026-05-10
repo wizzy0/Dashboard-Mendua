@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import DashboardView from './components/DashboardView';
 import POSView from './components/POSView';
@@ -14,6 +14,12 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const dismissedNotifsRef = useRef<Set<string>>(new Set());
+
+  const handleDismissNotification = (id: string) => {
+    dismissedNotifsRef.current.add(id);
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -33,31 +39,44 @@ export default function App() {
     let materialsList: RawMaterial[] = [];
 
     const updateNotifications = () => {
+      productsList.forEach(p => {
+        if (p.stock > (p.lowStockThreshold || 5)) dismissedNotifsRef.current.delete(`prod-${p.id}`);
+      });
+      materialsList.forEach(m => {
+        if (m.stock > (m.lowStockThreshold || 5)) dismissedNotifsRef.current.delete(`mat-${m.id}`);
+      });
+
       const lowProducts = productsList.filter(p => p.stock <= (p.lowStockThreshold || 5));
       const lowMaterials = materialsList.filter(m => m.stock <= (m.lowStockThreshold || 5));
       
       const newNotifications: Notification[] = [];
       
       lowProducts.forEach(p => {
-        newNotifications.push({
-          id: `prod-${p.id}`,
-          title: 'Stok Produk Menipis',
-          message: `Stok ${p.name} tersisa ${p.stock}`,
-          type: p.stock === 0 ? 'error' : 'warning',
-          read: false,
-          createdAt: p.updatedAt || Timestamp.now()
-        });
+        const id = `prod-${p.id}`;
+        if (!dismissedNotifsRef.current.has(id)) {
+          newNotifications.push({
+            id,
+            title: 'Stok Produk Menipis',
+            message: `Stok ${p.name} tersisa ${p.stock}`,
+            type: p.stock === 0 ? 'error' : 'warning',
+            read: false,
+            createdAt: p.updatedAt || Timestamp.now()
+          });
+        }
       });
 
       lowMaterials.forEach(m => {
-        newNotifications.push({
-          id: `mat-${m.id}`,
-          title: 'Stok Bahan Baku Menipis',
-          message: `Stok ${m.name} tersisa ${m.stock} ${m.unit}`,
-          type: m.stock === 0 ? 'error' : 'warning',
-          read: false,
-          createdAt: m.updatedAt || Timestamp.now()
-        });
+        const id = `mat-${m.id}`;
+        if (!dismissedNotifsRef.current.has(id)) {
+          newNotifications.push({
+            id,
+            title: 'Stok Bahan Baku Menipis',
+            message: `Stok ${m.name} tersisa ${m.stock} ${m.unit}`,
+            type: m.stock === 0 ? 'error' : 'warning',
+            read: false,
+            createdAt: m.updatedAt || Timestamp.now()
+          });
+        }
       });
 
       setNotifications(newNotifications);
@@ -105,6 +124,7 @@ export default function App() {
       activeTab={activeTab} 
       setActiveTab={setActiveTab} 
       notifications={notifications}
+      onDismissNotification={handleDismissNotification}
     >
       {renderContent()}
     </Layout>

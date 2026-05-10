@@ -16,6 +16,7 @@ export default function POSView() {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [customerName, setCustomerName] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
+  const [discountInput, setDiscountInput] = useState<number | ''>('');
   const [paymentReceived, setPaymentReceived] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
@@ -55,8 +56,9 @@ export default function POSView() {
   };
 
   const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const tax = subtotal * 0.1; // 10% tax
-  const total = subtotal + tax;
+  const discountPercent = Number(discountInput) || 0;
+  const discountAmount = subtotal * (discountPercent / 100);
+  const total = Math.max(0, subtotal - discountAmount);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -104,7 +106,7 @@ export default function POSView() {
         const orderData = {
           items: cart,
           subtotal,
-          tax,
+          discount: discountAmount,
           total,
           paymentMethod,
           customerName: customerName || 'Tanpa Nama',
@@ -146,6 +148,7 @@ export default function POSView() {
       setCart([]);
       setCustomerName('');
       setOrderNotes('');
+      setDiscountInput('');
       setPaymentReceived(false);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat checkout');
@@ -286,14 +289,22 @@ export default function POSView() {
         </div>
 
         <div className="p-4 border-t border-terracotta-100 space-y-4 shrink-0 bg-white">
-           <div className="space-y-1.5">
-              <div className="flex justify-between text-[11px] text-terracotta-500">
+           <div className="space-y-2">
+              <div className="flex justify-between items-center text-[11px] text-terracotta-500">
                  <span>Subtotal</span>
                  <span>{formatCurrency(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-[11px] text-terracotta-500">
-                 <span>Pajak (10%)</span>
-                 <span>{formatCurrency(tax)}</span>
+              <div className="flex justify-between items-center text-[11px] text-terracotta-500">
+                 <span>Diskon (%)</span>
+                 <input
+                   type="number"
+                   min="0"
+                   max="100"
+                   placeholder="0"
+                   value={discountInput}
+                   onChange={(e) => setDiscountInput(e.target.value === '' ? '' : Math.min(100, Math.max(0, Number(e.target.value))))}
+                   className="w-16 px-2 py-1 text-right rounded border border-terracotta-200 focus:outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500"
+                 />
               </div>
               <div className="flex justify-between text-base font-bold text-terracotta-900 pt-1.5 mt-1 border-t border-terracotta-50">
                  <span>Total</span>
@@ -464,10 +475,12 @@ export default function POSView() {
                       <span>Subtotal</span>
                       <span>{formatCurrency(subtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-xs text-terracotta-600">
-                      <span>Pajak (10%)</span>
-                      <span>{formatCurrency(tax)}</span>
-                    </div>
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-xs text-terracotta-600">
+                        <span>Diskon ({discountPercent}%)</span>
+                        <span className="text-red-500">-{formatCurrency(discountAmount)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between font-bold text-terracotta-900 pt-2 border-t border-terracotta-200 mt-1">
                       <span>Total Tagihan</span>
                       <span>{formatCurrency(total)}</span>
