@@ -9,6 +9,7 @@ import { cn, formatCurrency } from '../lib/utils';
 export default function POSView() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'digital'>('cash');
@@ -151,24 +152,60 @@ export default function POSView() {
     }
   };
 
-  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const categories = Array.from(new Set(products.map(p => p.category)));
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 md:gap-8 h-auto lg:h-[calc(100vh-180px)] pt-2 md:pt-0">
       {/* Product Selection */}
-      <div className="flex-[2] flex flex-col gap-4 md:gap-6 min-h-[500px] lg:min-h-0">
+      <div className="flex-[2] flex flex-col gap-4 md:gap-5 min-h-[500px] lg:min-h-0">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-terracotta-400" size={20} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-terracotta-400" size={18} />
           <input
             type="text"
-            placeholder="Cari Menu / Scan Barcode..."
+            placeholder="Cari menu..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none shadow-sm transition-all text-lg"
+            className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-white border border-terracotta-200 focus:outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 transition-all text-sm shadow-sm"
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {categories.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide shrink-0">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={cn(
+                "px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                selectedCategory === 'all' 
+                  ? "bg-terracotta-600 text-white" 
+                  : "bg-white border border-terracotta-200 text-terracotta-600 hover:bg-terracotta-50"
+              )}
+            >
+              Semua
+            </button>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors",
+                  selectedCategory === cat 
+                    ? "bg-terracotta-600 text-white border-terracotta-600" 
+                    : "bg-white border border-terracotta-200 text-terracotta-600 hover:bg-terracotta-50"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto pr-2 space-y-2.5">
           {filteredProducts.map(product => {
             const isLow = product.stock <= product.lowStockThreshold;
             return (
@@ -177,24 +214,18 @@ export default function POSView() {
                 whileTap={{ scale: 0.98 }}
                 key={product.id}
                 onClick={() => addToCart(product)}
-                className="bg-white p-5 rounded-3xl border border-terracotta-100 shadow-sm hover:border-terracotta-500/50 hover:shadow-md transition-all text-left flex flex-col justify-between group h-[200px]"
+                className="w-full bg-white p-3 rounded-lg border border-terracotta-200 hover:border-terracotta-400 transition-colors text-left flex items-center justify-between group"
               >
                 <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-bold text-terracotta-500 uppercase tracking-widest bg-earth-100 px-2.5 py-1 rounded-full">
-                      {product.category}
-                    </span>
-                    {isLow && (
-                       <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-md">Limit</span>
-                    )}
-                  </div>
-                  <h4 className="font-bold text-terracotta-900 mb-1 leading-tight">{product.name}</h4>
-                  <p className="text-terracotta-400 text-xs font-medium mb-4">Stok: {product.stock}</p>
+                  <h4 className="font-medium text-terracotta-900 text-sm">{product.name}</h4>
+                  <p className="text-terracotta-500 text-[10px] mb-1">{product.category}</p>
+                  <p className={cn("text-xs font-medium", isLow ? "text-red-500" : "text-terracotta-500")}>Stok: {product.stock}</p>
                 </div>
-                <div className="flex items-center justify-between">
-                   <p className="text-terracotta-500 font-bold">{formatCurrency(product.price)}</p>
-                   <div className="w-8 h-8 rounded-full bg-terracotta-50 group-hover:bg-terracotta-500 flex items-center justify-center text-terracotta-500 group-hover:text-white transition-colors">
-                      <Plus size={18} />
+                
+                <div className="flex flex-col items-end gap-2">
+                   <p className="text-terracotta-800 font-semibold text-sm">{formatCurrency(product.price)}</p>
+                   <div className="px-2 py-1 rounded bg-terracotta-50 flex items-center gap-1 text-terracotta-600 text-[10px] font-medium border border-terracotta-100 group-hover:bg-terracotta-500 group-hover:text-white transition-colors">
+                      <Plus size={12} /> Tambah
                    </div>
                 </div>
               </motion.button>
@@ -204,46 +235,46 @@ export default function POSView() {
       </div>
 
       {/* Cart Panel */}
-      <div className="flex-1 bg-white rounded-3xl md:rounded-[2.5rem] border border-terracotta-100 shadow-xl flex flex-col overflow-hidden min-h-[450px] lg:min-h-0">
-        <div className="p-4 md:p-6 border-b border-terracotta-50 flex items-center justify-between">
-           <div className="flex items-center gap-3">
-              <ShoppingBag className="text-terracotta-600" />
-              <h3 className="text-xl font-bold text-terracotta-900">Keranjang</h3>
+      <div className="flex-1 bg-white rounded-lg border border-terracotta-200 shadow-sm flex flex-col overflow-hidden min-h-[450px] lg:min-h-0">
+        <div className="p-4 border-b border-terracotta-100 flex items-center justify-between">
+           <div className="flex items-center gap-2">
+              <ShoppingBag className="text-terracotta-600" size={18} />
+              <h3 className="font-semibold text-terracotta-900 text-sm">Pesanan Saat Ini</h3>
            </div>
            <button 
             onClick={() => setCart([])}
-            className="text-terracotta-400 hover:text-red-500 text-xs font-bold uppercase transition-colors"
+            className="text-terracotta-400 hover:text-red-500 text-xs font-medium transition-colors"
            >
-            Kosongkan
+            Bersihkan
            </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
            {cart.length === 0 ? (
              <div className="h-full flex flex-col items-center justify-center text-center opacity-40">
-                <ShoppingBag size={48} className="mb-4 text-terracotta-200" />
-                <p className="text-terracotta-900 font-medium tracking-tight">Belum ada pesanan</p>
+                <ShoppingBag size={32} className="mb-2 text-terracotta-300" />
+                <p className="text-xs text-terracotta-900">Keranjang kosong</p>
              </div>
            ) : (
              cart.map(item => (
-               <div key={item.id} className="flex gap-4 items-center">
-                  <div className="flex-1">
-                     <p className="font-bold text-terracotta-900 leading-tight">{item.name}</p>
-                     <p className="text-sm text-terracotta-500">{formatCurrency(item.price)}</p>
+               <div key={item.id} className="flex gap-3 items-center py-2 border-b border-terracotta-50 last:border-0">
+                  <div className="flex-1 min-w-0">
+                     <p className="font-medium text-sm text-terracotta-900 truncate">{item.name}</p>
+                     <p className="text-[10px] text-terracotta-500">{formatCurrency(item.price)}</p>
                   </div>
-                  <div className="flex items-center gap-3 bg-earth-50 rounded-xl p-1 border border-terracotta-50">
+                  <div className="flex items-center gap-2 shrink-0">
                      <button 
                       onClick={() => updateQuantity(item.id, -1)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-terracotta-600"
+                      className="w-6 h-6 flex items-center justify-center rounded bg-earth-50 hover:bg-earth-100 text-terracotta-600 transition-colors"
                      >
-                      <Minus size={16} />
+                      <Minus size={12} />
                      </button>
-                     <span className="font-bold text-terracotta-900 w-4 text-center">{item.quantity}</span>
+                     <span className="font-medium text-xs text-terracotta-900 w-4 text-center">{item.quantity}</span>
                      <button 
                       onClick={() => updateQuantity(item.id, 1)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white text-terracotta-600"
+                      className="w-6 h-6 flex items-center justify-center rounded bg-earth-50 hover:bg-earth-100 text-terracotta-600 transition-colors"
                      >
-                      <Plus size={16} />
+                      <Plus size={12} />
                      </button>
                   </div>
                </div>
@@ -251,54 +282,51 @@ export default function POSView() {
            )}
         </div>
 
-        <div className="p-5 md:p-8 bg-earth-50/50 border-t border-terracotta-100 space-y-4 shrink-0">
-           <div className="space-y-2">
-              <div className="flex justify-between text-sm text-terracotta-600">
+        <div className="p-4 border-t border-terracotta-100 space-y-4 shrink-0 bg-white">
+           <div className="space-y-1.5">
+              <div className="flex justify-between text-[11px] text-terracotta-500">
                  <span>Subtotal</span>
                  <span>{formatCurrency(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm text-terracotta-600">
+              <div className="flex justify-between text-[11px] text-terracotta-500">
                  <span>Pajak (10%)</span>
                  <span>{formatCurrency(tax)}</span>
               </div>
-              <div className="flex justify-between text-xl font-black text-terracotta-900 pt-2 border-t border-terracotta-100 mt-2">
+              <div className="flex justify-between text-base font-bold text-terracotta-900 pt-1.5 mt-1 border-t border-terracotta-50">
                  <span>Total</span>
                  <span>{formatCurrency(total)}</span>
               </div>
            </div>
 
-           <div className="grid grid-cols-2 gap-3 pb-4">
+           <div className="grid grid-cols-2 gap-2 pb-2">
               <button
                 onClick={() => setPaymentMethod('cash')}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                  paymentMethod === 'cash' ? "border-terracotta-500 bg-white shadow-md text-terracotta-900" : "border-transparent bg-white/50 text-terracotta-400"
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border transition-all text-sm font-medium hover:bg-white",
+                  paymentMethod === 'cash' ? "border-terracotta-500 bg-white shadow-sm text-terracotta-700" : "border-terracotta-100 bg-transparent text-terracotta-500"
                 )}
               >
-                <Banknote size={20} />
-                <span className="text-[10px] font-bold uppercase">Tunai</span>
+                <Banknote size={16} />
+                <span>Tunai</span>
               </button>
               <button
                 onClick={() => setPaymentMethod('digital')}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                  paymentMethod === 'digital' ? "border-terracotta-500 bg-white shadow-md text-terracotta-900" : "border-transparent bg-white/50 text-terracotta-400"
+                  "flex items-center justify-center gap-2 p-2.5 rounded-lg border transition-all text-sm font-medium hover:bg-white",
+                  paymentMethod === 'digital' ? "border-terracotta-500 bg-white shadow-sm text-terracotta-700" : "border-terracotta-100 bg-transparent text-terracotta-500"
                 )}
               >
-                <CreditCard size={20} />
-                <span className="text-[10px] font-bold uppercase">QRIS / EDC</span>
+                <CreditCard size={16} />
+                <span>QRIS</span>
               </button>
            </div>
 
            <button
             disabled={cart.length === 0}
             onClick={() => setShowConfirmation(true)}
-            className="w-full bg-terracotta-500 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-terracotta-500/30 flex items-center justify-center gap-2 text-lg active:scale-95 transition-all outline-none"
+            className="w-full bg-terracotta-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
            >
-              <>
-                <ShoppingBag size={22} />
-                Lanjut
-              </>
+              Proses Bayar
            </button>
         </div>
       </div>
@@ -314,35 +342,35 @@ export default function POSView() {
               className="absolute inset-0 bg-terracotta-950/40 backdrop-blur-md"
             ></motion.div>
             <motion.div
-               initial={{ opacity: 0, scale: 0.9 }}
-               animate={{ opacity: 1, scale: 1 }}
-               exit={{ opacity: 0, scale: 0.9 }}
-               className="bg-white rounded-[3rem] p-10 max-w-sm w-full relative text-center shadow-2xl"
+               initial={{ opacity: 0, scale: 0.95, y: 10 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95, y: 10 }}
+               className="bg-white rounded-xl p-6 max-w-sm w-full relative text-center shadow-lg"
             >
-               <div className="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <CheckCircle2 size={48} />
+               <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 size={32} />
                </div>
-               <h2 className="text-3xl font-black text-terracotta-900 mb-2">Pembayaran Berhasil!</h2>
-               <p className="text-terracotta-500 mb-8 font-medium">Transaksi #{lastOrder?.id.slice(-6).toUpperCase()} telah tercatat.</p>
+               <h2 className="text-xl font-bold text-terracotta-900 mb-1">Transaksi Berhasil!</h2>
+               <p className="text-terracotta-500 mb-6 text-sm">Pesanan #{lastOrder?.id.slice(-6).toUpperCase()} tersimpan.</p>
                
-               <div className="bg-earth-50 rounded-2xl p-5 mb-8 text-left space-y-2 border border-terracotta-50">
+               <div className="bg-earth-50 rounded-xl p-4 mb-6 text-left space-y-2 border border-terracotta-100">
                   <div className="flex justify-between text-sm">
-                    <span className="text-terracotta-400">Total Dibayar</span>
-                    <span className="font-bold text-terracotta-900">{formatCurrency(lastOrder?.total || 0)}</span>
+                    <span className="text-terracotta-500">Total</span>
+                    <span className="font-semibold text-terracotta-900">{formatCurrency(lastOrder?.total || 0)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-terracotta-400">Atas Nama</span>
-                    <span className="font-bold text-terracotta-900">{lastOrder?.customerName}</span>
+                    <span className="text-terracotta-500">Pelanggan</span>
+                    <span className="font-medium text-terracotta-900">{lastOrder?.customerName}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-terracotta-400">Metode</span>
-                    <span className="font-bold text-terracotta-900 capitalize">{lastOrder?.paymentMethod}</span>
+                    <span className="text-terracotta-500">Metode</span>
+                    <span className="font-medium text-terracotta-900 capitalize">{lastOrder?.paymentMethod}</span>
                   </div>
                </div>
 
                <button
                 onClick={() => setShowSuccess(false)}
-                className="w-full bg-terracotta-950 text-white font-bold py-4 rounded-xl hover:bg-black transition-all"
+                className="w-full bg-terracotta-600 text-white font-medium py-3 rounded-lg hover:bg-terracotta-700 transition-colors"
                >
                 Selesai
                </button>
@@ -363,99 +391,95 @@ export default function POSView() {
               className="absolute inset-0 bg-terracotta-950/40 backdrop-blur-md"
             ></motion.div>
             <motion.div
-               initial={{ opacity: 0, scale: 0.95, y: 20 }}
+               initial={{ opacity: 0, scale: 0.95, y: 10 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-               className="bg-white rounded-[2rem] p-8 max-w-lg w-full relative shadow-2xl flex flex-col max-h-[90vh]"
+               exit={{ opacity: 0, scale: 0.95, y: 10 }}
+               className="bg-white rounded-xl p-6 max-w-md w-full relative shadow-lg flex flex-col max-h-[90vh]"
             >
-               <div className="flex items-center justify-between mb-6">
-                 <h2 className="text-2xl font-black text-terracotta-900">Konfirmasi Pesanan</h2>
+               <div className="flex items-center justify-between mb-5 border-b border-terracotta-50 pb-3">
+                 <h2 className="text-lg font-semibold text-terracotta-900">Konfirmasi Pembayaran</h2>
                  <button 
                   onClick={() => setShowConfirmation(false)}
-                  className="text-terracotta-400 hover:text-terracotta-700"
+                  className="text-terracotta-400 hover:text-terracotta-600"
                  >
                   Batal
                  </button>
                </div>
 
-               <div className="overflow-y-auto pr-2 space-y-6 flex-1">
+               <div className="overflow-y-auto pr-2 space-y-5 flex-1">
                  {/* Input Customer Name */}
-                 <div className="space-y-2">
-                   <label className="text-sm font-bold text-terracotta-700 ml-1">Nama Pemesan</label>
+                 <div className="space-y-1.5">
+                   <label className="text-sm font-medium text-terracotta-700">Nama Pelanggan</label>
                    <div className="relative">
-                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-terracotta-400" size={18} />
+                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-terracotta-400" size={16} />
                      <input
                        type="text"
-                       placeholder="Masukkan Nama Pelanggan"
+                       placeholder="Opsional..."
                        value={customerName}
                        onChange={(e) => setCustomerName(e.target.value)}
-                       className="w-full pl-11 pr-4 py-3 rounded-xl bg-earth-50 border border-terracotta-100 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20 shadow-sm"
+                       className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-white border border-terracotta-200 focus:outline-none focus:ring-1 focus:ring-terracotta-500 focus:border-terracotta-500 shadow-sm text-sm"
                      />
                    </div>
                  </div>
 
                  {/* Order List */}
                  <div>
-                   <p className="text-sm font-bold text-terracotta-400 uppercase mb-3">Rincian Pesanan</p>
-                   <div className="space-y-3">
+                   <p className="text-xs font-semibold text-terracotta-500 mb-2">Item</p>
+                   <div className="space-y-2">
                      {cart.map(item => (
-                       <div key={item.id} className="flex justify-between items-center bg-earth-50 p-3 rounded-xl border border-terracotta-50">
+                       <div key={item.id} className="flex justify-between items-center bg-earth-50/50 p-2.5 rounded-lg border border-terracotta-100">
                          <div>
-                           <p className="font-bold text-terracotta-900">{item.name}</p>
+                           <p className="font-medium text-sm text-terracotta-900">{item.name}</p>
                            <p className="text-xs text-terracotta-500">{item.quantity} x {formatCurrency(item.price)}</p>
                          </div>
-                         <p className="font-bold text-terracotta-700">{formatCurrency(item.price * item.quantity)}</p>
+                         <p className="font-semibold text-sm text-terracotta-700">{formatCurrency(item.price * item.quantity)}</p>
                        </div>
                      ))}
                    </div>
                  </div>
 
                  {/* Summary */}
-                 <div className="bg-terracotta-50 p-4 rounded-xl space-y-2 border border-terracotta-100">
-                    <div className="flex justify-between text-sm text-terracotta-700">
+                 <div className="bg-earth-50/50 p-3 rounded-lg space-y-1.5 border border-terracotta-100">
+                    <div className="flex justify-between text-xs text-terracotta-600">
                       <span>Subtotal</span>
                       <span>{formatCurrency(subtotal)}</span>
                     </div>
-                    <div className="flex justify-between text-sm text-terracotta-700">
+                    <div className="flex justify-between text-xs text-terracotta-600">
                       <span>Pajak (10%)</span>
                       <span>{formatCurrency(tax)}</span>
                     </div>
-                    <div className="flex justify-between font-black text-lg text-terracotta-900 pt-2 border-t border-terracotta-200 mt-2">
+                    <div className="flex justify-between font-bold text-terracotta-900 pt-2 border-t border-terracotta-200 mt-1">
                       <span>Total Tagihan</span>
                       <span>{formatCurrency(total)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-terracotta-700 pt-1">
-                      <span>Metode Pembayaran</span>
-                      <span className="uppercase font-bold">{paymentMethod}</span>
                     </div>
                  </div>
                </div>
 
-               <div className="mt-6 pt-6 border-t border-terracotta-100 space-y-4">
+               <div className="mt-5 pt-5 border-t border-terracotta-100 space-y-4">
                  <label 
-                   className="flex items-center gap-3 cursor-pointer group"
+                   className="flex items-start gap-2.5 cursor-pointer group"
                    onClick={() => setPaymentReceived(!paymentReceived)}
                  >
                    <div className={cn(
-                     "w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors shrink-0",
-                     paymentReceived ? "bg-terracotta-500 border-terracotta-500 text-white" : "border-terracotta-200 text-transparent"
+                     "w-5 h-5 rounded overflow-hidden border flex items-center justify-center transition-colors shrink-0 mt-0.5",
+                     paymentReceived ? "bg-terracotta-600 border-terracotta-600 text-white" : "bg-white border-terracotta-300 text-transparent group-hover:border-terracotta-400"
                    )}>
-                     <CheckCircle2 size={16} />
+                     <CheckCircle2 size={14} />
                    </div>
-                   <span className="font-medium text-terracotta-900 select-none group-hover:text-terracotta-700">
-                     Saya mengonfirmasi bahwa pelanggan telah membayar pesanan ini ({paymentMethod === 'cash' ? 'Tunai' : 'QRIS/Digital'}).
+                   <span className="text-sm text-terracotta-700 leading-snug">
+                     Status pembayaran telah lunas melalui <span className="font-semibold uppercase">{paymentMethod}</span>.
                    </span>
                  </label>
 
                  <button
                   disabled={!paymentReceived || isCheckingOut}
                   onClick={handleCheckout}
-                  className="w-full bg-terracotta-500 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-600 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all"
+                  className="w-full bg-terracotta-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-terracotta-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
                  >
                   {isCheckingOut ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   ) : (
-                    <>Eksekusi Pesanan</>
+                    <>Konfirmasi Transaksi</>
                   )}
                  </button>
                </div>

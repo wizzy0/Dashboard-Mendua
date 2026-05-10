@@ -228,21 +228,21 @@ export default function InventoryView() {
   return (
     <div className="space-y-6">
       {/* Tab Switcher */}
-      <div className="flex bg-earth-100 p-1 rounded-2xl w-full sm:w-fit">
+      <div className="flex border-b border-terracotta-100 w-full mb-4">
         <button
           onClick={() => setActiveTab('products')}
           className={cn(
-            "flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-xl font-bold transition-all text-sm sm:text-base",
-            activeTab === 'products' ? "bg-white text-terracotta-900 shadow-sm" : "text-terracotta-400 hover:text-terracotta-600"
+            "px-6 py-2.5 font-medium transition-all text-sm",
+            activeTab === 'products' ? "text-terracotta-600 border-b-2 border-terracotta-600" : "text-terracotta-400 hover:text-terracotta-600"
           )}
         >
-          Produk
+          Daftar Produk
         </button>
         <button
           onClick={() => setActiveTab('rawMaterials')}
           className={cn(
-            "flex-1 sm:flex-none px-4 sm:px-6 py-2 rounded-xl font-bold transition-all text-sm sm:text-base",
-            activeTab === 'rawMaterials' ? "bg-white text-terracotta-900 shadow-sm" : "text-terracotta-400 hover:text-terracotta-600"
+            "px-6 py-2.5 font-medium transition-all text-sm",
+            activeTab === 'rawMaterials' ? "text-terracotta-600 border-b-2 border-terracotta-600" : "text-terracotta-400 hover:text-terracotta-600"
           )}
         >
           Bahan Baku
@@ -250,24 +250,24 @@ export default function InventoryView() {
       </div>
 
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-terracotta-400" size={18} />
+      <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-terracotta-400" size={18} />
           <input
             type="text"
             placeholder={activeTab === 'products' ? "Cari produk..." : "Cari bahan baku..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 rounded-xl bg-white border border-terracotta-100 focus:outline-none focus:ring-2 focus:ring-terracotta-500/20 focus:border-terracotta-500 transition-all shadow-sm"
+            className="w-full pl-10 pr-3 py-2 rounded-lg bg-white border border-terracotta-200 focus:outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 transition-all text-sm"
           />
         </div>
         
-        <div className="flex gap-3 w-full md:w-auto">
+        <div className="flex gap-2 w-full md:w-auto">
           {activeTab === 'products' && (
             <select 
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-3 rounded-xl bg-white border border-terracotta-100 text-terracotta-700 outline-none shadow-sm cursor-pointer"
+              className="px-3 py-2 rounded-lg bg-white border border-terracotta-200 text-terracotta-600 outline-none text-sm cursor-pointer"
             >
               <option value="All">Semua Kategori</option>
               {categories.map(cat => (
@@ -287,33 +287,43 @@ export default function InventoryView() {
                 }
                 setIsModalOpen(true); 
             }}
-            className="w-[163px] md:flex-none flex items-center justify-center gap-2 bg-terracotta-500 hover:bg-terracotta-600 text-white px-4 py-3 rounded-xl transition-all shadow-md shadow-terracotta-500/10"
+            className="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-terracotta-600 hover:bg-terracotta-700 text-white px-4 py-2 rounded-lg transition-colors text-sm font-medium shadow-sm"
           >
-            <Plus size={20} />
-            {activeTab === 'products' ? 'Tambah Produk' : 'Tambah Bahan'}
+            <Plus size={16} />
+            {activeTab === 'products' ? 'Tambah' : 'Tambah'}
           </button>
         </div>
       </div>
 
       {/* Content Grid */}
       {activeTab === 'products' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="flex flex-col gap-2.5">
           {filteredProducts.map((product) => {
             const isLowStock = product.stock <= product.lowStockThreshold;
             return (
               <motion.div
                 layout
                 key={product.id}
-                className="bg-white rounded-3xl p-5 border border-terracotta-100 shadow-sm hover:shadow-md transition-all relative group"
+                className="bg-white rounded border border-terracotta-200 hover:border-terracotta-400 transition-colors p-3 group flex items-center justify-between"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className={cn(
-                    "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider",
-                    isLowStock ? "bg-red-50 text-red-600" : "bg-terracotta-50 text-terracotta-600"
-                  )}>
-                    {product.category}
+                <div className="flex-1 min-w-0 pr-4">
+                  <h4 className="text-sm font-medium text-terracotta-900 truncate">{product.name}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-[10px] text-terracotta-500">{product.category}</p>
+                    <span className="text-[10px] text-terracotta-300">•</span>
+                    <p className="text-[10px] text-terracotta-400 font-mono">{product.sku || '-'}</p>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className={cn("text-[11px] font-medium flex items-center gap-1", isLowStock ? "text-red-500" : "text-terracotta-600")}>
+                      Stok: {product.stock}
+                      {isLowStock && <AlertCircle size={12} />}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-end gap-2 shrink-0">
+                  <span className="text-sm font-semibold text-terracotta-800">{formatCurrency(product.price)}</span>
+                  <div className="flex gap-1">
                      <button 
                       onClick={() => { 
                         setEditingProduct(product); 
@@ -329,110 +339,72 @@ export default function InventoryView() {
                         }); 
                         setIsModalOpen(true); 
                       }}
-                      className="p-2 text-terracotta-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg"
+                      className="p-1.5 text-terracotta-400 hover:text-terracotta-600 hover:bg-earth-50 rounded"
                      >
-                      <Edit2 size={16} />
+                      <Edit2 size={14} />
                      </button>
                      <button 
                       onClick={() => handleDeleteProduct(product.id)}
-                      className="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                      className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
                      >
-                      <Trash2 size={16} />
+                      <Trash2 size={14} />
                      </button>
                   </div>
                 </div>
 
-                <h4 className="text-lg font-bold text-terracotta-900 mb-1">{product.name}</h4>
-                <p className="text-terracotta-500 font-mono text-sm mb-4">{product.sku || '-'}</p>
-                
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-xs text-terracotta-400 uppercase font-bold tracking-tighter mb-1">Stock</p>
-                    <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl font-bold", isLowStock ? "text-red-500" : "text-terracotta-900")}>
-                        {product.stock}
-                      </span>
-                      {isLowStock && (
-                        <div className="bg-red-500 text-white p-1 rounded-full">
-                          <AlertCircle size={12} />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-terracotta-400 uppercase font-bold tracking-tighter mb-1">Harga</p>
-                    <span className="text-lg font-bold text-terracotta-900">{formatCurrency(product.price)}</span>
-                  </div>
-                </div>
               </motion.div>
             );
           })}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="flex flex-col gap-2.5">
           {filteredMaterials.map((material) => {
             const isLowStock = material.stock <= material.lowStockThreshold;
             return (
               <motion.div
                 layout
                 key={material.id}
-                className="bg-white rounded-3xl p-5 border border-terracotta-100 shadow-sm hover:shadow-md transition-all relative group"
+                className="bg-white rounded border border-terracotta-200 hover:border-terracotta-400 transition-colors p-3 group flex items-center justify-between"
               >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-2 px-3 py-1 bg-earth-50 rounded-full text-[10px] font-bold text-terracotta-600 uppercase">
-                    <Droplets size={12} />
-                    {material.unit}
+                <div className="flex-1 min-w-0 pr-4">
+                  <h4 className="text-sm font-medium text-terracotta-900 truncate">{material.name}</h4>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-[10px] text-terracotta-500 flex items-center gap-1">
+                      <Droplets size={10} /> {material.unit}
+                    </p>
+                    <span className="text-[10px] text-terracotta-300">•</span>
+                    <span className="text-[10px] text-terracotta-400">Min: {material.lowStockThreshold}</span>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                     <button 
-                      onClick={() => { 
-                        setEditingMaterial(material); 
-                        setMaterialFormData({
-                            name: material.name,
-                            stock: material.stock,
-                            unit: material.unit,
-                            lowStockThreshold: material.lowStockThreshold
-                        }); 
-                        setIsModalOpen(true); 
-                      }}
-                      className="p-2 text-terracotta-400 hover:text-terracotta-600 hover:bg-terracotta-50 rounded-lg"
-                     >
-                      <Edit2 size={16} />
-                     </button>
-                     <button 
-                      onClick={() => handleDeleteMaterial(material.id)}
-                      className="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                     >
-                      <Trash2 size={16} />
-                     </button>
+                  <div className="mt-1">
+                    <span className={cn("text-[11px] font-medium flex items-center gap-1", isLowStock ? "text-red-500" : "text-terracotta-600")}>
+                      Stok: {material.stock} {material.unit}
+                      {isLowStock && <AlertCircle size={12} />}
+                    </span>
                   </div>
                 </div>
-
-                <h4 className="text-lg font-bold text-terracotta-900 mb-4">{material.name}</h4>
                 
-                <div className="flex items-end justify-between">
-                  <div>
-                    <p className="text-xs text-terracotta-400 uppercase font-bold tracking-tighter mb-1">Current Stock</p>
-                    <div className="flex items-center gap-2">
-                      <span className={cn("text-2xl font-bold", isLowStock ? "text-red-500" : "text-terracotta-900")}>
-                        {material.stock} <span className="text-sm font-medium text-terracotta-400">{material.unit}</span>
-                      </span>
-                      {isLowStock && (
-                        <div className="bg-red-500 text-white p-1 rounded-full animate-pulse">
-                          <AlertCircle size={12} />
-                        </div>
-                      )}
-                    </div>
-                    {isLowStock && (
-                        <p className="text-[10px] font-bold text-red-500 mt-1">STOK BAHAN MENIPIS!</p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs text-terracotta-400 uppercase font-bold tracking-tighter mb-1 flex items-center justify-end gap-1">
-                        <Scale size={10} /> Min
-                    </p>
-                    <span className="text-sm font-bold text-terracotta-600">{material.lowStockThreshold} {material.unit}</span>
-                  </div>
+                <div className="flex items-center gap-1 shrink-0">
+                   <button 
+                    onClick={() => { 
+                      setEditingMaterial(material); 
+                      setMaterialFormData({
+                          name: material.name,
+                          stock: material.stock,
+                          unit: material.unit,
+                          lowStockThreshold: material.lowStockThreshold
+                      }); 
+                      setIsModalOpen(true); 
+                    }}
+                    className="p-1.5 text-terracotta-400 hover:text-terracotta-600 hover:bg-earth-50 rounded"
+                   >
+                    <Edit2 size={14} />
+                   </button>
+                   <button 
+                    onClick={() => handleDeleteMaterial(material.id)}
+                    className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded"
+                   >
+                    <Trash2 size={14} />
+                   </button>
                 </div>
               </motion.div>
             );
@@ -441,20 +413,20 @@ export default function InventoryView() {
       )}
 
       {/* Floating Action Buttons for Stock Adjustment */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-40">
+      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-40">
         <button
            onClick={() => { setAdjustmentType('add'); setIsStockAdjustmentModalOpen(true); }}
-           className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20 transition-transform hover:scale-110"
+           className="w-12 h-12 bg-white border border-terracotta-200 text-terracotta-700 hover:bg-earth-50 rounded-full flex items-center justify-center shadow-sm transition-colors"
            title="Tambah Stok"
         >
-           <Plus size={24} />
+           <Plus size={20} />
         </button>
         <button
            onClick={() => { setAdjustmentType('subtract'); setIsStockAdjustmentModalOpen(true); }}
-           className="w-14 h-14 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-red-500/20 transition-transform hover:scale-110"
+           className="w-12 h-12 bg-white border border-terracotta-200 text-terracotta-700 hover:bg-earth-50 rounded-full flex items-center justify-center shadow-sm transition-colors"
            title="Kurangi Stok"
         >
-           <Minus size={24} />
+           <Minus size={20} />
         </button>
       </div>
 
@@ -470,28 +442,28 @@ export default function InventoryView() {
               className="absolute inset-0 bg-terracotta-950/40 backdrop-blur-sm"
             ></motion.div>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-[2rem] w-full max-w-md p-8 relative shadow-2xl flex flex-col pt-10"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-xl w-full max-w-sm p-6 relative shadow-lg flex flex-col"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className={cn("text-2xl font-bold", adjustmentType === 'add' ? "text-emerald-600" : "text-red-600")}>
-                  {adjustmentType === 'add' ? 'Tambah Stok' : 'Kurangi Stok'} {activeTab === 'products' ? 'Produk' : 'Bahan'}
+              <div className="flex items-center justify-between mb-5 border-b border-terracotta-50 pb-3">
+                <h3 className="text-lg font-semibold text-terracotta-900">
+                  {adjustmentType === 'add' ? 'Tambah Stok' : 'Kurangi Stok'}
                 </h3>
-                <button type="button" onClick={() => setIsStockAdjustmentModalOpen(false)} className="p-2 hover:bg-earth-100 rounded-full transition-colors absolute top-6 right-6">
-                  <X size={20} />
+                <button type="button" onClick={() => setIsStockAdjustmentModalOpen(false)} className="text-terracotta-400 hover:text-terracotta-600">
+                  <X size={18} />
                 </button>
               </div>
 
               <form onSubmit={handleStockAdjustment} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-terracotta-700 ml-1">Pilih {activeTab === 'products' ? 'Produk' : 'Bahan Baku'}</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-terracotta-700">Pilih {activeTab === 'products' ? 'Produk' : 'Bahan Baku'}</label>
                   <select
                     required
                     value={adjustmentData.itemId}
                     onChange={(e) => setAdjustmentData({...adjustmentData, itemId: e.target.value})}
-                    className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all cursor-pointer"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none transition-all text-sm"
                   >
                     <option value="">Pilih {activeTab === 'products' ? 'Produk...' : 'Bahan...'}</option>
                     {activeTab === 'rawMaterials' 
@@ -505,38 +477,33 @@ export default function InventoryView() {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-terracotta-700 ml-1">Jumlah {adjustmentType === 'add' ? 'Ditambahkan' : 'Dikurangi'}</label>
-                  <div className="flex items-center gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-terracotta-700">Jumlah Modifikasi</label>
+                  <div className="flex items-center gap-2">
                     <input
                       required
                       type="number"
                       min="1"
                       value={adjustmentData.quantity || ''}
                       onChange={(e) => setAdjustmentData({...adjustmentData, quantity: Number(e.target.value)})}
-                      className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
-                      placeholder="Masukkan angka..."
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none text-sm"
+                      placeholder="Angka..."
                     />
                     {selectedItemForAdjustment && activeTab === 'rawMaterials' && (
-                      <span className="text-sm font-bold text-terracotta-400 w-16 px-2">{(selectedItemForAdjustment as RawMaterial).unit}</span>
+                      <span className="text-xs text-terracotta-500">{(selectedItemForAdjustment as RawMaterial).unit}</span>
                     )}
                     {selectedItemForAdjustment && activeTab === 'products' && (
-                      <span className="text-sm font-bold text-terracotta-400 w-16 px-2">Pcs</span>
+                      <span className="text-xs text-terracotta-500">Pcs</span>
                     )}
                   </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="pt-4">
                   <button
                     type="submit"
-                    className={cn(
-                        "w-full font-bold px-8 py-4 rounded-2xl transition-all shadow-lg text-white",
-                        adjustmentType === 'add' 
-                            ? "bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20" 
-                            : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
-                    )}
+                    className="w-full font-medium py-2.5 rounded-lg transition-colors text-white bg-terracotta-600 hover:bg-terracotta-700 text-sm"
                   >
-                    Konfirmasi {adjustmentType === 'add' ? 'Penambahan' : 'Pengurangan'}
+                    Simpan Perubahan
                   </button>
                 </div>
               </form>
@@ -557,20 +524,20 @@ export default function InventoryView() {
               className="absolute inset-0 bg-terracotta-950/40 backdrop-blur-sm"
             ></motion.div>
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-[2rem] w-full max-w-2xl p-8 relative shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white/95 backdrop-blur-sm rounded-xl w-full max-w-2xl p-6 md:p-8 relative shadow-xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-terracotta-900">
+              <div className="flex items-center justify-between mb-5 border-b border-terracotta-50 pb-3">
+                <h3 className="text-lg font-semibold text-terracotta-900">
                   {activeTab === 'products' 
                     ? (editingProduct ? 'Edit Produk' : 'Tambah Produk Baru')
                     : (editingMaterial ? 'Edit Bahan Baku' : 'Tambah Bahan Baku')
                   }
                 </h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-earth-100 rounded-full transition-colors">
-                  <X />
+                <button onClick={() => setIsModalOpen(false)} className="text-terracotta-400 hover:text-terracotta-600">
+                  <X size={18} />
                 </button>
               </div>
 
@@ -578,25 +545,25 @@ export default function InventoryView() {
                 {activeTab === 'products' ? (
                   <form onSubmit={handleSaveProduct} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="col-span-1 md:col-span-2 space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Nama Produk</label>
+                      <div className="col-span-1 md:col-span-2 space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Nama Produk</label>
                         <input
                           required
                           type="text"
                           value={formData.name}
                           onChange={(e) => setFormData({...formData, name: e.target.value})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                           placeholder="Contoh: Es Kopi Mendua"
                         />
                       </div>
                       
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Kategori</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Kategori</label>
                         <select
                           required
                           value={formData.category}
                           onChange={(e) => setFormData({...formData, category: e.target.value})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                         >
                           <option value="">Pilih Kategori</option>
                           {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
@@ -606,36 +573,36 @@ export default function InventoryView() {
                         </select>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">SKU / Kode</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">SKU / Kode</label>
                         <input
                           type="text"
                           value={formData.sku}
                           onChange={(e) => setFormData({...formData, sku: e.target.value})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                           placeholder="SKU-001"
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Harga (Rp)</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Harga (Rp)</label>
                         <input
                           required
                           type="number"
                           value={formData.price}
                           onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Stok Manual (Opsional)</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Stok Manual</label>
                         <input
                           required
                           type="number"
                           value={formData.stock}
                           onChange={(e) => setFormData({...formData, stock: Number(e.target.value)})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                         />
                       </div>
                     </div>
@@ -700,17 +667,17 @@ export default function InventoryView() {
                       </div>
                     </div>
 
-                    <div className="pt-6 flex gap-3 sticky bottom-0 bg-white">
+                    <div className="pt-6 flex gap-3 mt-4 border-t border-terracotta-50 pt-4 bg-white/50 backdrop-blur-sm sticky bottom-0">
                        <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="flex-1 px-8 py-4 rounded-2xl border border-terracotta-200 text-terracotta-700 font-bold hover:bg-earth-50 transition-all"
+                        className="px-6 py-2 rounded-lg border border-terracotta-200 text-terracotta-600 font-medium hover:bg-earth-50 transition-colors text-sm"
                        >
                         Batal
                        </button>
                        <button
                         type="submit"
-                        className="flex-[2] bg-terracotta-500 hover:bg-terracotta-600 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-terracotta-500/20"
+                        className="flex-1 bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm"
                        >
                         {editingProduct ? 'Simpan Perubahan' : 'Tambah Produk'}
                        </button>
@@ -719,64 +686,64 @@ export default function InventoryView() {
                 ) : (
                   <form onSubmit={handleSaveMaterial} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="col-span-1 md:col-span-2 space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Nama Bahan Baku</label>
+                      <div className="col-span-1 md:col-span-2 space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Nama Bahan Baku</label>
                         <input
                           required
                           type="text"
                           value={materialFormData.name}
                           onChange={(e) => setMaterialFormData({...materialFormData, name: e.target.value})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                           placeholder="Contoh: Biji Kopi Arabica"
                         />
                       </div>
                       
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Satuan</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Satuan</label>
                         <input
                           required
                           type="text"
                           value={materialFormData.unit}
                           onChange={(e) => setMaterialFormData({...materialFormData, unit: e.target.value})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                           placeholder="Gr / Ml / Pcs"
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Stok Saat Ini</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Stok Saat Ini</label>
                         <input
                           required
                           type="number"
                           value={materialFormData.stock}
                           onChange={(e) => setMaterialFormData({...materialFormData, stock: Number(e.target.value)})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                         />
                       </div>
 
-                      <div className="col-span-1 md:col-span-2 space-y-2">
-                        <label className="text-sm font-bold text-terracotta-700 ml-1">Batas Stok Menipis (Alert)</label>
+                      <div className="col-span-1 md:col-span-2 space-y-1.5">
+                        <label className="text-xs font-medium text-terracotta-700">Batas Stok Menipis (Alert)</label>
                         <input
                           required
                           type="number"
                           value={materialFormData.lowStockThreshold}
                           onChange={(e) => setMaterialFormData({...materialFormData, lowStockThreshold: Number(e.target.value)})}
-                          className="w-full px-5 py-3 rounded-2xl bg-earth-50 border border-terracotta-100 focus:ring-2 focus:ring-terracotta-500/20 outline-none transition-all"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-terracotta-200 outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500 text-sm"
                         />
                       </div>
                     </div>
 
-                    <div className="pt-6 flex gap-3">
+                    <div className="flex gap-3 mt-4 border-t border-terracotta-50 pt-4 bg-white/50 backdrop-blur-sm sticky bottom-0">
                        <button
                         type="button"
                         onClick={() => setIsModalOpen(false)}
-                        className="flex-1 px-8 py-4 rounded-2xl border border-terracotta-200 text-terracotta-700 font-bold hover:bg-earth-50 transition-all"
+                        className="px-6 py-2 rounded-lg border border-terracotta-200 text-terracotta-600 font-medium hover:bg-earth-50 transition-colors text-sm"
                        >
                         Batal
                        </button>
                        <button
                         type="submit"
-                        className="flex-[2] bg-terracotta-500 hover:bg-terracotta-600 text-white font-bold px-8 py-4 rounded-2xl transition-all shadow-lg shadow-terracotta-500/20"
+                        className="flex-1 bg-terracotta-600 hover:bg-terracotta-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm"
                        >
                         {editingMaterial ? 'Simpan Perubahan' : 'Tambah Bahan'}
                        </button>
