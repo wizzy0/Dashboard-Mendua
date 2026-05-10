@@ -33,7 +33,7 @@
 @media print {
   @page {
     margin: 0;
-    size: 58mm auto; /* Typical thermal printer roll width */
+    /* Dihapus 'size: 58mm auto;' karena sering membuat driver printer thermal di Windows error / bentrok */
   }
   
   body {
