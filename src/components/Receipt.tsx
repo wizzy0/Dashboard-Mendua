@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Order } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { format } from 'date-fns';
@@ -12,7 +13,7 @@ interface ReceiptProps {
 export default function Receipt({ order }: ReceiptProps) {
   if (!order) return null;
 
-  return (
+  const content = (
     <div className="print-only" id="printable-receipt">
       <div className="text-center mb-4">
         <h2 className="font-bold text-lg mb-1">Kedai Mendua</h2>
@@ -94,4 +95,6 @@ export default function Receipt({ order }: ReceiptProps) {
       </div>
     </div>
   );
+
+  return createPortal(content, document.body);
 }
