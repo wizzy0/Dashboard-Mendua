@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../services/firebase';
 import { collection, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore';
 import { Order } from '../types';
-import { ShoppingCart, Calendar, Search, Filter, Download, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Calendar, Search, Filter, Download, ChevronDown, X } from 'lucide-react';
 import { formatCurrency, cn } from '../lib/utils';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function HistoryView() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
@@ -89,7 +91,11 @@ export default function HistoryView() {
             </thead>
             <tbody className="divide-y divide-terracotta-50">
               {filteredOrders.map(order => (
-                <tr key={order.id} className="hover:bg-earth-50/50 transition-colors group">
+                <tr 
+                  key={order.id} 
+                  onClick={() => setSelectedOrder(order)}
+                  className="hover:bg-earth-50/50 transition-colors group cursor-pointer"
+                >
                   <td className="px-8 py-6">
                     <span className="font-bold text-terracotta-900 font-mono tracking-tighter">#{order.id.slice(-8).toUpperCase()}</span>
                   </td>
@@ -105,6 +111,11 @@ export default function HistoryView() {
                     <p className="text-sm font-bold text-terracotta-900">
                       {order.customerName || 'Tanpa Nama'}
                     </p>
+                    {order.notes && (
+                      <p className="text-xs text-terracotta-500 mt-1 line-clamp-2" title={order.notes}>
+                        <span className="font-semibold">Catatan:</span> {order.notes}
+                      </p>
+                    )}
                   </td>
                   <td className="px-8 py-6 max-w-xs">
                     <p className="text-sm text-terracotta-700 truncate font-medium">
@@ -133,6 +144,117 @@ export default function HistoryView() {
           </div>
         )}
       </div>
+
+      {/* Order Detail Modal */}
+      <AnimatePresence>
+        {selectedOrder && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedOrder(null)}
+              className="absolute inset-0 bg-terracotta-950/40 backdrop-blur-sm"
+            ></motion.div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-xl p-6 md:p-8 w-full max-w-2xl relative shadow-xl flex flex-col max-h-[90vh]"
+            >
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-terracotta-100">
+                <div>
+                  <h2 className="text-xl font-bold text-terracotta-900">Detail Pesanan</h2>
+                  <p className="text-sm font-mono text-terracotta-500 mt-1">
+                    #{selectedOrder.id.toUpperCase()}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-terracotta-400 hover:text-terracotta-600 bg-earth-50 p-2 rounded-lg transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="overflow-y-auto pr-2 space-y-6 flex-1">
+                {/* Info Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-earth-50 rounded-xl p-4 border border-terracotta-100">
+                    <p className="text-[10px] uppercase font-bold text-terracotta-400 mb-1">Pelanggan</p>
+                    <p className="font-semibold text-terracotta-900">{selectedOrder.customerName || 'Tanpa Nama'}</p>
+                  </div>
+                  <div className="bg-earth-50 rounded-xl p-4 border border-terracotta-100">
+                    <p className="text-[10px] uppercase font-bold text-terracotta-400 mb-1">Tanggal & Waktu</p>
+                    <p className="font-semibold text-terracotta-900">
+                      {selectedOrder.createdAt instanceof Timestamp 
+                        ? format(selectedOrder.createdAt.toDate(), 'dd MMM yyyy, HH:mm', { locale: id }) 
+                        : '-'}
+                    </p>
+                  </div>
+                  <div className="bg-earth-50 rounded-xl p-4 border border-terracotta-100">
+                    <p className="text-[10px] uppercase font-bold text-terracotta-400 mb-1">Status</p>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">
+                      Selesai
+                    </span>
+                  </div>
+                  <div className="bg-earth-50 rounded-xl p-4 border border-terracotta-100">
+                    <p className="text-[10px] uppercase font-bold text-terracotta-400 mb-1">Metode Pembayaran</p>
+                    <p className="font-semibold text-terracotta-900 capitalize">
+                      {selectedOrder.paymentMethod === 'cash' ? 'Tunai' : 'Digital (QRIS)'}
+                    </p>
+                  </div>
+                  {selectedOrder.notes && (
+                    <div className="col-span-2 bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                      <p className="text-[10px] uppercase font-bold text-yellow-600 mb-1">Catatan</p>
+                      <p className="text-sm text-yellow-900">{selectedOrder.notes}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Items */}
+                <div>
+                  <h3 className="font-bold text-terracotta-900 mb-3">Item Pesanan</h3>
+                  <div className="space-y-3">
+                    {selectedOrder.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center bg-white border border-terracotta-100 p-3 rounded-xl">
+                        <div className="flex gap-3 items-center">
+                          <div className="w-8 h-8 rounded-lg bg-earth-50 text-terracotta-600 font-bold flex items-center justify-center text-sm">
+                            {item.quantity}x
+                          </div>
+                          <div>
+                            <p className="font-semibold text-terracotta-900 text-sm">{item.name}</p>
+                            <p className="text-xs text-terracotta-500">{formatCurrency(item.price)}</p>
+                          </div>
+                        </div>
+                        <p className="font-bold text-sm text-terracotta-800">
+                          {formatCurrency(item.price * item.quantity)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Summary */}
+                <div className="bg-terracotta-50 rounded-xl p-5 border border-terracotta-100 space-y-2">
+                  <div className="flex justify-between text-sm text-terracotta-600">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(selectedOrder.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-terracotta-600">
+                    <span>Pajak (10%)</span>
+                    <span>{formatCurrency(selectedOrder.tax)}</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-black text-terracotta-900 pt-3 mt-1 border-t border-terracotta-200">
+                    <span>Total Keseluruhan</span>
+                    <span>{formatCurrency(selectedOrder.total)}</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

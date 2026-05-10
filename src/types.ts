@@ -39,6 +39,7 @@ export interface Order {
   total: number;
   paymentMethod: string;
   customerName?: string;
+  notes?: string;
   status: 'completed' | 'pending' | 'cancelled';
   createdAt: any;
   createdBy: string;

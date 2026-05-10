@@ -15,6 +15,7 @@ export default function POSView() {
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'digital'>('cash');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [customerName, setCustomerName] = useState('');
+  const [orderNotes, setOrderNotes] = useState('');
   const [paymentReceived, setPaymentReceived] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [lastOrder, setLastOrder] = useState<Order | null>(null);
@@ -107,6 +108,7 @@ export default function POSView() {
           total,
           paymentMethod,
           customerName: customerName || 'Tanpa Nama',
+          notes: orderNotes,
           status: 'completed',
           createdAt: serverTimestamp(),
           createdBy: auth.currentUser?.uid || 'anonymous'
@@ -143,6 +145,7 @@ export default function POSView() {
       setShowSuccess(true);
       setCart([]);
       setCustomerName('');
+      setOrderNotes('');
       setPaymentReceived(false);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat checkout');
@@ -366,6 +369,12 @@ export default function POSView() {
                     <span className="text-terracotta-500">Metode</span>
                     <span className="font-medium text-terracotta-900 capitalize">{lastOrder?.paymentMethod}</span>
                   </div>
+                  {lastOrder?.notes && (
+                    <div className="pt-2 mt-2 border-t border-terracotta-200">
+                      <p className="text-xs text-terracotta-500 mb-1">Catatan:</p>
+                      <p className="text-sm font-medium text-terracotta-900 line-clamp-2">{lastOrder.notes}</p>
+                    </div>
+                  )}
                </div>
 
                <button
@@ -420,6 +429,17 @@ export default function POSView() {
                        className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-white border border-terracotta-200 focus:outline-none focus:ring-1 focus:ring-terracotta-500 focus:border-terracotta-500 shadow-sm text-sm"
                      />
                    </div>
+                 </div>
+
+                 {/* Input Notes */}
+                 <div className="space-y-1.5 mt-3">
+                   <label className="text-sm font-medium text-terracotta-700">Catatan Pesanan</label>
+                   <textarea
+                     placeholder="Contoh: Es teh jangan terlalu manis..."
+                     value={orderNotes}
+                     onChange={(e) => setOrderNotes(e.target.value)}
+                     className="w-full px-3 py-2.5 rounded-lg bg-white border border-terracotta-200 focus:outline-none focus:ring-1 focus:ring-terracotta-500 focus:border-terracotta-500 shadow-sm text-sm resize-none h-20"
+                   />
                  </div>
 
                  {/* Order List */}
