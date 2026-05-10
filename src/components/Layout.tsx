@@ -119,7 +119,7 @@ export default function Layout({ children, activeTab, setActiveTab, notification
   }
 
   return (
-    <div className="min-h-screen bg-earth-50 flex overflow-hidden">
+    <div className="min-h-screen bg-earth-50 flex overflow-hidden no-print">
       {/* Mobile Overlay */}
       <AnimatePresence>
         {isMobile && isSidebarOpen && (

@@ -6,6 +6,8 @@ import { Search, Plus, Minus, Trash2, ShoppingBag, CreditCard, Banknote, User, C
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, formatCurrency } from '../lib/utils';
 
+import Receipt from './Receipt';
+
 export default function POSView() {
   const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -388,16 +390,26 @@ export default function POSView() {
                   )}
                </div>
 
-               <button
-                onClick={() => setShowSuccess(false)}
-                className="w-full bg-terracotta-600 text-white font-medium py-3 rounded-lg hover:bg-terracotta-700 transition-colors"
-               >
-                Selesai
-               </button>
+               <div className="flex gap-3">
+                 <button
+                  onClick={() => window.print()}
+                  className="w-1/2 bg-white border border-terracotta-200 text-terracotta-700 font-medium py-3 rounded-lg hover:bg-terracotta-50 transition-colors flex items-center justify-center gap-2"
+                 >
+                  Cetak Struk
+                 </button>
+                 <button
+                  onClick={() => setShowSuccess(false)}
+                  className="w-1/2 bg-terracotta-600 text-white font-medium py-3 rounded-lg hover:bg-terracotta-700 transition-colors"
+                 >
+                  Selesai
+                 </button>
+               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      <Receipt order={lastOrder} />
 
       {/* Confirmation Modal */}
       <AnimatePresence>

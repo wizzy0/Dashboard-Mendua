@@ -7,6 +7,7 @@ import { formatCurrency, cn } from '../lib/utils';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'motion/react';
+import Receipt from './Receipt';
 
 export default function HistoryView() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -258,11 +259,27 @@ export default function HistoryView() {
                     <span>{formatCurrency(selectedOrder.total)}</span>
                   </div>
                 </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-1 bg-white border border-terracotta-200 text-terracotta-700 font-medium py-3 rounded-lg hover:bg-terracotta-50 transition-colors"
+                  >
+                    Cetak Struk
+                  </button>
+                  <button
+                    onClick={() => setSelectedOrder(null)}
+                    className="flex-1 bg-terracotta-600 text-white font-medium py-3 rounded-lg hover:bg-terracotta-700 transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+      <Receipt order={selectedOrder} />
     </div>
   );
 }

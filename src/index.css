@@ -23,3 +23,39 @@
     @apply bg-earth-50 text-terracotta-950 antialiased;
   }
 }
+
+@media screen {
+  .print-only {
+    display: none !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 0;
+    size: 58mm auto; /* Typical thermal printer roll width */
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: white !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 58mm;
+    margin: 0;
+    padding: 2mm;
+    color: black !important;
+    font-family: monospace;
+    font-size: 12px;
+  }
+}
