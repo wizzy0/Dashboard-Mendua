@@ -17,7 +17,7 @@ export default function Receipt({ order }: ReceiptProps) {
     <div className="print-only" id="printable-receipt">
       <div className="text-center mb-4">
         <h2 className="font-bold text-lg mb-1">Kedai Mendua</h2>
-        <p className="text-sm">Sistem Kasir & Inventory</p>
+        <p className="text-sm">Jalan Badak Agung</p>
         <p className="text-xs mt-1 border-b pb-2 border-black border-dashed">
           {order.createdAt instanceof Timestamp 
             ? format(order.createdAt.toDate(), 'dd MMM yyyy HH:mm', { locale: id }) 
